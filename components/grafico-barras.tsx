@@ -1,0 +1,296 @@
+"use client"
+
+import { useState } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { BarChart3 } from "lucide-react"
+import { ChartTypeSelector } from "./chart-type-selector"
+import { ResponsiveChart } from "./responsive-chartjs"
+import { useMobile } from "../hooks/use-mobile"
+import type { ChartData, ChartOptions } from "chart.js"
+
+const datosVertical = [
+  { categoria: "Producto A", frecuencia: 25 },
+  { categoria: "Producto B", frecuencia: 30 },
+  { categoria: "Producto C", frecuencia: 20 },
+  { categoria: "Producto D", frecuencia: 15 },
+  { categoria: "Producto E", frecuencia: 10 },
+]
+
+const datosComparativo = [
+  { categoria: "Enero", ventas2023: 120, ventas2024: 140 },
+  { categoria: "Febrero", ventas2023: 100, ventas2024: 130 },
+  { categoria: "Marzo", ventas2023: 150, ventas2024: 160 },
+  { categoria: "Abril", ventas2023: 110, ventas2024: 145 },
+]
+
+export function GraficoBarras() {
+  const [tipoGrafico, setTipoGrafico] = useState("vertical")
+  const { isMobile } = useMobile()
+
+  // Configuraciones de datos
+  const getChartData = (): ChartData<"bar"> => {
+    switch (tipoGrafico) {
+      case "vertical":
+        return {
+          labels: datosVertical.map((item) => (isMobile ? item.categoria.split(" ")[1] : item.categoria)),
+          datasets: [
+            {
+              label: "Frecuencia",
+              data: datosVertical.map((item) => item.frecuencia),
+              backgroundColor: [
+                "rgba(59, 130, 246, 0.8)",
+                "rgba(16, 185, 129, 0.8)",
+                "rgba(245, 158, 11, 0.8)",
+                "rgba(239, 68, 68, 0.8)",
+                "rgba(139, 92, 246, 0.8)",
+              ],
+              borderColor: [
+                "rgba(59, 130, 246, 1)",
+                "rgba(16, 185, 129, 1)",
+                "rgba(245, 158, 11, 1)",
+                "rgba(239, 68, 68, 1)",
+                "rgba(139, 92, 246, 1)",
+              ],
+              borderWidth: 2,
+              borderRadius: isMobile ? 4 : 8,
+              borderSkipped: false,
+            },
+          ],
+        }
+
+      case "horizontal":
+        return {
+          labels: datosVertical.map((item) => (isMobile ? item.categoria.split(" ")[1] : item.categoria)),
+          datasets: [
+            {
+              label: "Frecuencia",
+              data: datosVertical.map((item) => item.frecuencia),
+              backgroundColor: "rgba(99, 102, 241, 0.8)",
+              borderColor: "rgba(99, 102, 241, 1)",
+              borderWidth: 2,
+              borderRadius: isMobile ? 4 : 8,
+            },
+          ],
+        }
+
+      case "dobles":
+        return {
+          labels: datosComparativo.map((item) => item.categoria),
+          datasets: [
+            {
+              label: "Ventas 2023",
+              data: datosComparativo.map((item) => item.ventas2023),
+              backgroundColor: "rgba(59, 130, 246, 0.8)",
+              borderColor: "rgba(59, 130, 246, 1)",
+              borderWidth: 2,
+              borderRadius: isMobile ? 3 : 6,
+            },
+            {
+              label: "Ventas 2024",
+              data: datosComparativo.map((item) => item.ventas2024),
+              backgroundColor: "rgba(16, 185, 129, 0.8)",
+              borderColor: "rgba(16, 185, 129, 1)",
+              borderWidth: 2,
+              borderRadius: isMobile ? 3 : 6,
+            },
+          ],
+        }
+
+      case "apiladas":
+        return {
+          labels: datosComparativo.map((item) => item.categoria),
+          datasets: [
+            {
+              label: "Ventas 2023",
+              data: datosComparativo.map((item) => item.ventas2023),
+              backgroundColor: "rgba(59, 130, 246, 0.8)",
+              borderColor: "rgba(59, 130, 246, 1)",
+              borderWidth: 2,
+              stack: "Stack 0",
+            },
+            {
+              label: "Ventas 2024",
+              data: datosComparativo.map((item) => item.ventas2024),
+              backgroundColor: "rgba(16, 185, 129, 0.8)",
+              borderColor: "rgba(16, 185, 129, 1)",
+              borderWidth: 2,
+              stack: "Stack 0",
+            },
+          ],
+        }
+
+      default:
+        return getChartData()
+    }
+  }
+
+  const getChartOptions = (): ChartOptions<"bar"> => {
+    const baseOptions: ChartOptions<"bar"> = {}
+
+    if (tipoGrafico === "horizontal") {
+      baseOptions.indexAxis = "y"
+    }
+
+    if (tipoGrafico === "apiladas") {
+      baseOptions.scales = {
+        x: { stacked: true },
+        y: { stacked: true },
+      }
+    }
+
+    return baseOptions
+  }
+
+  const getChartTitle = () => {
+    switch (tipoGrafico) {
+      case "vertical":
+        return "Gráfico de Barras Vertical"
+      case "horizontal":
+        return "Gráfico de Barras Horizontal"
+      case "dobles":
+        return "Gráfico de Barras Dobles - Comparativo"
+      case "apiladas":
+        return "Gráfico de Barras Apiladas"
+      default:
+        return "Gráfico de Barras"
+    }
+  }
+
+  return (
+    <div className="space-y-4 md:space-y-8">
+      <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-2xl">
+        <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-t-lg p-4 md:p-6">
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="p-1.5 md:p-2 bg-white/20 rounded-lg">
+              <BarChart3 className="w-4 h-4 md:w-6 md:h-6" />
+            </div>
+            <div>
+              <CardTitle className="text-lg md:text-2xl font-bold">1. Gráfico de Barras</CardTitle>
+              <CardDescription className="text-blue-100 text-sm md:text-base">
+                Representación visual de datos categóricos mediante barras rectangulares
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 md:p-6 border-b">
+          <div className="max-w-4xl mx-auto">
+            <h3 className="text-sm md:text-lg font-bold text-gray-800 mb-2 md:mb-3 flex items-center gap-2">
+              <span className="text-base md:text-xl">📋</span>
+              Descripción General
+            </h3>
+            <p className="text-xs md:text-base text-gray-700 leading-relaxed">
+              Los gráficos de barras son una de las herramientas más fundamentales en estadística descriptiva. Permiten
+              representar visualmente datos categóricos mediante barras rectangulares cuya longitud es proporcional a
+              los valores que representan. Son especialmente útiles para comparar diferentes categorías de datos y
+              identificar patrones, tendencias o diferencias significativas entre grupos.
+            </p>
+          </div>
+        </div>
+
+        <CardContent className="p-4 md:p-8">
+          {/* Nuevo selector de tipos */}
+          <ChartTypeSelector activeType={tipoGrafico} onTypeChange={setTipoGrafico} />
+
+          {/* Contenedor del gráfico y tabla */}
+          <div className={`grid ${isMobile ? "grid-cols-1 gap-4" : "lg:grid-cols-2 gap-8"}`}>
+            {/* Gráfico */}
+            <div className="bg-gradient-to-br from-gray-50 to-white p-4 md:p-6 rounded-xl md:rounded-2xl shadow-lg">
+              <h3 className="text-base md:text-xl font-bold text-gray-800 mb-3 md:mb-4 flex items-center gap-2">
+                <div className="w-2 h-2 md:w-3 md:h-3 bg-blue-500 rounded-full"></div>
+                <span className="text-sm md:text-base">{getChartTitle()}</span>
+              </h3>
+
+              <ResponsiveChart type="bar" data={getChartData()} options={getChartOptions()} />
+            </div>
+
+            {/* Tabla de datos */}
+            <div className="space-y-4 md:space-y-6">
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 md:p-6 rounded-xl md:rounded-2xl">
+                <h3 className="text-base md:text-xl font-bold text-gray-800 mb-3 md:mb-4">
+                  Tabla de Distribución de Frecuencias
+                </h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse bg-white rounded-lg overflow-hidden shadow-sm">
+                    <thead>
+                      <tr className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white">
+                        <th className="px-2 md:px-4 py-2 md:py-3 text-left font-semibold text-xs md:text-sm">
+                          Categoría
+                        </th>
+                        <th className="px-2 md:px-4 py-2 md:py-3 text-center font-semibold text-xs md:text-sm">
+                          Frecuencia
+                        </th>
+                        <th className="px-2 md:px-4 py-2 md:py-3 text-center font-semibold text-xs md:text-sm">
+                          Porcentaje
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {datosVertical.map((item, index) => (
+                        <tr key={index} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                          <td className="px-2 md:px-4 py-2 md:py-3 font-medium text-gray-800 text-xs md:text-sm">
+                            {item.categoria}
+                          </td>
+                          <td className="px-2 md:px-4 py-2 md:py-3 text-center">
+                            <Badge variant="secondary" className="bg-blue-100 text-blue-800 text-xs">
+                              {item.frecuencia}
+                            </Badge>
+                          </td>
+                          <td className="px-2 md:px-4 py-2 md:py-3 text-center text-gray-600 text-xs md:text-sm">
+                            {((item.frecuencia / 100) * 100).toFixed(1)}%
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Fuentes bibliográficas */}
+          <div className="mt-6 md:mt-8 p-4 md:p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border-l-4 border-blue-500">
+            <h3 className="text-sm md:text-xl font-bold text-gray-800 mb-3 md:mb-4 flex items-center gap-2">
+              <span className="text-lg md:text-2xl">📚</span>
+              Fuentes Bibliográficas Específicas
+            </h3>
+            <div className={`grid ${isMobile ? "grid-cols-1" : "md:grid-cols-2"} gap-3 md:gap-6 text-xs md:text-sm`}>
+              <div className="space-y-3">
+                <div className="p-3 md:p-4 bg-white rounded-lg shadow-sm">
+                  <p className="font-semibold text-blue-800 mb-1 md:mb-2">Fuente Principal:</p>
+                  <p className="text-gray-700">
+                    Moya, R. (2018). "Estadística Descriptiva y Probabilidad", Cap. 3: Gráficos de Barras y su
+                    Aplicación. Editorial Universitaria, pp. 45-67.
+                  </p>
+                </div>
+                <div className="p-3 md:p-4 bg-white rounded-lg shadow-sm">
+                  <p className="font-semibold text-blue-800 mb-1 md:mb-2">Fuente Complementaria:</p>
+                  <p className="text-gray-700">
+                    Hernández, C. (2020). "Métodos Estadísticos Aplicados", Sección 2.1: Representación Gráfica de
+                    Variables Categóricas. Pearson Education, pp. 78-95.
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div className="p-3 md:p-4 bg-white rounded-lg shadow-sm">
+                  <p className="font-semibold text-blue-800 mb-1 md:mb-2">Recurso Digital UEES:</p>
+                  <p className="text-gray-700">
+                    Base de Datos E-Recursos UEES - "Gráficos Estadísticos Fundamentales" - Módulo: Gráficos de Barras.
+                  </p>
+                </div>
+                <div className="p-3 md:p-4 bg-white rounded-lg shadow-sm">
+                  <p className="font-semibold text-blue-800 mb-1 md:mb-2">Referencia Metodológica:</p>
+                  <p className="text-gray-700">
+                    García, M. & López, A. (2019). "Análisis de Datos con Gráficos Estadísticos", Cap. 4: Construcción e
+                    Interpretación de Gráficos de Barras. McGraw-Hill, pp. 112-134.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
