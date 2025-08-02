@@ -238,7 +238,7 @@ export default function EstadisticaGraficos() {
       <footer className="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-4 md:py-8 mt-8 md:mt-16">
         <div className="max-w-7xl mx-auto px-4 md:px-6 text-center">
           <p className="text-gray-300 text-xs md:text-base">
-            © 2024 Universidad Evangélica de El Salvador - Estadística Aplicada
+            © 2025 Universidad Evangélica de El Salvador - Estadística Aplicada
           </p>
           <p className="text-gray-400 text-xs mt-1 md:mt-2">Presentación académica sobre Gráficos Estadísticos</p>
         </div>
